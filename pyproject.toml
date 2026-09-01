@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-incident-response-copilot"
+version = "1.0.0"
+description = "A guardrailed, retrieval-augmented incident response copilot with cited plans and deterministic evaluations."
+requires-python = ">=3.11"
+dependencies = [
+  "Flask>=3.1,<4",
+  "gunicorn>=23,<24",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.4,<9",
+  "pytest-cov>=6.3,<7",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers --disable-warnings"
+
+[tool.coverage.run]
+branch = true
+source = ["incident_copilot"]
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+
+[tool.setuptools.packages.find]
+include = ["incident_copilot*"]
+

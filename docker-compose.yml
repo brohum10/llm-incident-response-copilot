@@ -1,0 +1,13 @@
+services:
+  copilot:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      AUDIT_DATABASE: /data/audit.db
+    volumes:
+      - copilot-data:/data
+
+volumes:
+  copilot-data:
+
