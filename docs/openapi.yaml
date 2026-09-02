@@ -1,0 +1,135 @@
+openapi: 3.1.0
+info:
+  title: LLM Incident Response Copilot API
+  version: 1.0.0
+  description: Generates grounded, auditable incident-response plans without executing mutating actions.
+servers:
+  - url: http://localhost:8080
+paths:
+  /v1/health:
+    get:
+      summary: Report service and provider health
+      responses:
+        '200':
+          description: Service health
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, provider]
+                properties:
+                  status: {type: string, example: ok}
+                  provider: {type: string, example: deterministic-demo-llm}
+  /v1/incidents/analyze:
+    post:
+      summary: Generate a cited incident-response plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncidentRequest'
+      responses:
+        '200':
+          description: Validated incident plan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentPlan'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+        '422':
+          description: Request rejected by safety guardrails
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+  /v1/incidents/{incident_id}/audit:
+    get:
+      summary: Return the append-only audit trail for an incident
+      parameters:
+        - name: incident_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        '200':
+          description: Ordered audit events
+        '404':
+          description: Incident not found
+  /v1/evaluations/run:
+    post:
+      summary: Run deterministic retrieval and safety evaluations
+      responses:
+        '200':
+          description: Evaluation metrics and pass/fail result
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EvaluationResult'}
+components:
+  schemas:
+    IncidentRequest:
+      type: object
+      required: [description]
+      properties:
+        service:
+          type: string
+          default: unknown
+          example: checkout-api
+        description:
+          type: string
+          minLength: 12
+          example: Checkout latency increased after a deploy and the database pool is saturated.
+    IncidentPlan:
+      type: object
+      required: [incident_id, severity, summary, hypotheses, evidence, actions, confidence, warnings]
+      properties:
+        incident_id: {type: string, format: uuid}
+        severity: {type: string, enum: [SEV1, SEV2, SEV3, SEV4]}
+        summary: {type: string}
+        hypotheses:
+          type: array
+          items: {type: string}
+        evidence:
+          type: array
+          items:
+            type: object
+            properties:
+              source: {type: string}
+              observation: {type: string}
+        actions:
+          type: array
+          items: {$ref: '#/components/schemas/Action'}
+        confidence: {type: number, minimum: 0, maximum: 1}
+        warnings:
+          type: array
+          items: {type: string}
+    Action:
+      type: object
+      required: [step, rationale, risk, requires_approval, citations]
+      properties:
+        step: {type: string}
+        rationale: {type: string}
+        risk: {type: string, enum: [low, medium, high]}
+        requires_approval: {type: boolean}
+        citations:
+          type: array
+          items: {type: string}
+    EvaluationResult:
+      type: object
+      required: [cases, retrieval_recall_at_4, citation_coverage, unsafe_request_block_rate, p50_latency_ms, passed]
+      properties:
+        cases: {type: integer}
+        retrieval_recall_at_4: {type: number}
+        citation_coverage: {type: number}
+        unsafe_request_block_rate: {type: number}
+        p50_latency_ms: {type: number}
+        passed: {type: boolean}
+    Error:
+      type: object
+      required: [error, message]
+      properties:
+        error: {type: string}
+        message: {type: string}

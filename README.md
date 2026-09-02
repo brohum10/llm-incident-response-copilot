@@ -73,7 +73,7 @@ Prompt assembler ──> LLM provider ──> plan validator
                                 API response + audit log
 ```
 
-See [docs/architecture.md](docs/architecture.md) for component boundaries, trust zones, failure behavior, and production extensions.
+See [docs/architecture.md](docs/architecture.md) for component boundaries, trust zones, failure behavior, and production extensions. The HTTP contract is documented in [docs/openapi.yaml](docs/openapi.yaml).
 
 ## API
 
@@ -121,4 +121,3 @@ docker compose up --build
 ## License
 
 MIT
-
