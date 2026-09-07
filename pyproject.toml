@@ -9,7 +9,7 @@ description = "A guardrailed, retrieval-augmented incident response copilot with
 requires-python = ">=3.11"
 dependencies = [
   "Flask>=3.1,<4",
-  "gunicorn>=23,<24",
+  "gunicorn>=23,<27",
 ]
 
 [project.optional-dependencies]
