@@ -9,14 +9,14 @@ description = "A guardrailed, retrieval-augmented incident response copilot with
 requires-python = ">=3.11"
 dependencies = [
   "Flask>=3.1,<4",
-  "gunicorn>=23,<24",
+  "gunicorn>=23,<27",
 ]
 
 [project.optional-dependencies]
 dev = [
   "build>=1.2,<2",
-  "pytest>=8.4,<9",
-  "pytest-cov>=6.3,<7",
+  "pytest>=8.4,<10",
+  "pytest-cov>=6.3,<8",
 ]
 
 [tool.pytest.ini_options]
