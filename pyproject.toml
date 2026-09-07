@@ -16,7 +16,7 @@ dependencies = [
 dev = [
   "build>=1.2,<2",
   "pytest>=8.4,<9",
-  "pytest-cov>=6.3,<7",
+  "pytest-cov>=6.3,<8",
 ]
 
 [tool.pytest.ini_options]
