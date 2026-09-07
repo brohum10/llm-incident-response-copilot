@@ -14,10 +14,11 @@ ROOT = Path(__file__).resolve().parent.parent
 
 @pytest.fixture
 def copilot():
-    return IncidentCopilot(
+    service = IncidentCopilot(
         retriever=HybridRetriever(load_runbooks(ROOT / "runbooks")),
         provider=DemoLLMProvider(),
         tools=build_demo_registry(),
         audit_log=AuditLog(),
     )
-
+    yield service
+    service.audit_log.close()

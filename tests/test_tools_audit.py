@@ -33,10 +33,9 @@ def test_tool_schemas_are_sorted_and_marked_read_only():
 
 
 def test_audit_log_preserves_event_order():
-    audit = AuditLog()
-    audit.append("inc_1", "first", {"value": 1})
-    audit.append("inc_1", "second", {"value": 2})
-    events = audit.events_for("inc_1")
+    with AuditLog() as audit:
+        audit.append("inc_1", "first", {"value": 1})
+        audit.append("inc_1", "second", {"value": 2})
+        events = audit.events_for("inc_1")
     assert [event["event_type"] for event in events] == ["first", "second"]
     assert events[1]["payload"] == {"value": 2}
-

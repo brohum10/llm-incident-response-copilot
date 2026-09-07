@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import weakref
 from datetime import UTC, datetime
 from pathlib import Path
 from threading import Lock
@@ -13,6 +14,7 @@ class AuditLog:
         self.database_path = str(database_path)
         self._lock = Lock()
         self._connection = sqlite3.connect(self.database_path, check_same_thread=False)
+        self._finalizer = weakref.finalize(self, self._connection.close)
         self._connection.execute(
             """
             CREATE TABLE IF NOT EXISTS audit_events (
@@ -45,3 +47,14 @@ class AuditLog:
             for event_type, payload, created_at in rows
         ]
 
+    def close(self) -> None:
+        """Close the database connection; calling this more than once is safe."""
+        with self._lock:
+            if self._finalizer.alive:
+                self._finalizer()
+
+    def __enter__(self) -> AuditLog:
+        return self
+
+    def __exit__(self, *_: object) -> None:
+        self.close()
